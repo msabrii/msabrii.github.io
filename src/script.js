@@ -4,7 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 //Texture loader
 const loader = new THREE.TextureLoader()
-const cross = loader.load('./particle.png')
+const cross = loader.load('./cross.png')
 
 // Debug
 const gui = new dat.GUI()
@@ -34,7 +34,7 @@ particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3
 
 const material = new THREE.PointsMaterial({
     size: 0.005,
-    // map: cross,
+    map: null,
     transparent: true,
     color: 0x3477a7
     // blending: THREE.MultiplyBlending
@@ -48,12 +48,7 @@ const particlesMesh = new THREE.Points(particlesGeometry, material)
 // text.position.set(1 , 1, 1)
 scene.add(particlesMesh)
 
-//Colors
-
-let palette = {
-    color: '#3477a7',
-    color2: [ 0, 128, 255 ] // CSS string
-  };
+//Colors and datGUI setup
 let showGui = false
   document.addEventListener("keyup", function(event){
       if(event.keyCode == 18){
@@ -67,10 +62,35 @@ let showGui = false
         }
       }
 });
+
+let palette = {
+    color: '#3477a7',
+    color2: [ 0, 128, 255 ] // CSS string
+  };
+let size = {
+    size: 50
+}
+let particleTexture = {texture:false}
+
  
-let colorControl
-colorControl = gui.addColor(palette, 'color');
+let colorControl = gui.addColor(palette, 'color')
+let sizeControl = gui.add(size, 'size', 1, 100)
+let particleTextureControl = gui.add(particleTexture, 'texture')
+
+
 colorControl.onChange(changeColor)
+
+particleTextureControl.onChange(changeTexture)
+function changeTexture(){
+    let bool = particleTextureControl.getValue()
+    if(bool){
+        particlesMesh.material.map = cross
+    }
+    else{
+        particlesMesh.material.map = null
+    }
+    particlesMesh.material.needsUpdate = true
+}
 function changeColor(){
     let title = document.getElementById('name')
     let color = colorControl.getValue('color')
@@ -78,6 +98,13 @@ function changeColor(){
     color = color.slice(1, color.length)
     color = '0x' +  color
     particlesMesh.material.color.setHex(color)
+}
+
+sizeControl.onChange(changeSize)
+function changeSize(){
+    let cur_size = sizeControl.getValue('size')
+    cur_size = cur_size / 10000
+    particlesMesh.material.size = (cur_size)
 }
 
 // Lights
@@ -124,7 +151,6 @@ scene.add(camera)
 // Controls
 // const controls = new OrbitControls(camera, canvas)
 // controls.enableDamping = true
-
 /**
  * Renderer
  */
