@@ -95,6 +95,7 @@ function changeColor(){
     let title = document.getElementById('name')
     let color = colorControl.getValue('color')
     title.style.color = color
+
     color = color.slice(1, color.length)
     color = '0x' +  color
     particlesMesh.material.color.setHex(color)
